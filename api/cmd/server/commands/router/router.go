@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"beta-be/internal/controller/user"
+	"beta-be/internal/handler/rest/authenticated"
 	"beta-be/internal/handler/rest/jwt"
 
 	jwtmiddleware "github.com/appleboy/gin-jwt/v2"
@@ -12,9 +13,10 @@ import (
 )
 
 type Router struct {
-	ctx           context.Context
-	jwtHandler    jwt.Handler
-	jwtMiddleware *jwtmiddleware.GinJWTMiddleware
+	ctx                  context.Context
+	jwtHandler           jwt.Handler
+	jwtMiddleware        *jwtmiddleware.GinJWTMiddleware
+	authenticatedHandler authenticated.Handler
 }
 
 func New(
@@ -23,9 +25,10 @@ func New(
 	jwtMiddleware *jwtmiddleware.GinJWTMiddleware,
 ) Router {
 	r := Router{
-		ctx:           ctx,
-		jwtHandler:    jwt.New(userCtrl),
-		jwtMiddleware: jwtMiddleware,
+		ctx:                  ctx,
+		jwtHandler:           jwt.New(userCtrl),
+		jwtMiddleware:        jwtMiddleware,
+		authenticatedHandler: authenticated.New(userCtrl),
 	}
 	r.jwtMiddleware.Authenticator = r.jwtHandler.Authenticator
 	return r
@@ -37,7 +40,10 @@ func (rtr Router) Handler(g *gin.Engine) (http.Handler, error) {
 }
 
 func (rtr Router) public(g *gin.Engine) {
-
+	v1 := g.Group("api/v1")
+	{
+		v1.POST("/register", rtr.authenticatedHandler.Register)
+	}
 }
 
 func (rtr Router) jwt(g *gin.Engine) {

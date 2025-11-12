@@ -12,6 +12,12 @@
 # Output of the go coverage tool
 *.out
 
+# Vendor dependencies
+api/vendor/
+
+# Ent generated files
+api/internal/repository/ent/
+
 .idea
 temp/
 !temp

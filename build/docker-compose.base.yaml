@@ -1,0 +1,52 @@
+version: '3.7'
+
+services:
+  pg:
+    container_name: ${PROJECT_NAME}-pg-${CONTAINER_NAME:-local}
+    image: postgres:14-alpine
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - network
+    environment:
+      TZ: UTC
+      POSTGRES_USER: ${PROJECT_NAME}
+      POSTGRES_HOST_AUTH_METHOD: trust
+  pg-migrate:
+    container_name: ${PROJECT_NAME}-pg-migrate-${CONTAINER_NAME:-local}
+    image: migrate/migrate:v4.15.2
+    restart: "no"
+    entrypoint: ""
+    networks:
+      - network
+    environment:
+      TZ: UTC
+      PG_URL: postgres://@pg:5432/${PROJECT_NAME}?sslmode=disable
+      PGUSER: ${PROJECT_NAME}
+      PGPASSWORD: ""
+  api:
+    container_name: ${PROJECT_NAME}-api-${CONTAINER_NAME:-local}
+    networks:
+      - network
+    environment:
+      TZ: UTC
+      CGO_ENABLED: 0
+      GOARCH: amd64
+      GOOS: linux
+      PORT: '3000'
+      ENVIRONMENT: 'development'
+      DEBUG: 'true'
+      PROJECT_NAME: '${PROJECT_NAME}'
+      PG_URL: postgres://${PROJECT_NAME}:@pg:5432/${PROJECT_NAME}?sslmode=disable
+      PG_POOL_MAX_OPEN_CONNS: '4'
+      PG_POOL_MAX_IDLE_CONNS: '2'
+  mockery:
+    container_name: ${PROJECT_NAME}-mockery-${CONTAINER_NAME:-local}
+    image: vektra/mockery:v2.39.0
+networks:
+  network:
+    name: ${PROJECT_NAME}-${CONTAINER_NAME:-local}

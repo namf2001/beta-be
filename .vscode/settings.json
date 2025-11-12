@@ -1,0 +1,8 @@
+{
+    "workbench.colorCustomizations": {
+        "editorCursor.foreground": "#ff7abf",
+        "editorCursor.background": "#e46724",
+        "minimap.background": "#00000000",
+        "scrollbar.shadow": "#00000000"
+    }
+}

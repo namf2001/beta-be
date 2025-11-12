@@ -1,0 +1,21 @@
+### Go ###
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+.idea
+temp/
+!temp
+api/configs/.env
+api/configs/.env.test
+api/configs/.dev.env
+api/**/mock_*.go
